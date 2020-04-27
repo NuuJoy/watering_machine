@@ -1,41 +1,11 @@
-#!/usr/bin/env python
-
 import sys
 import json
 import time
 import numpy
 import scipy.optimize
-# --------------------------------------------------------------------------------------------------------------
-class servoPoint():
-    def __init__(self,nodeName,initPos,initAxis,initDeg,degMin,degMax,child=[]):
-        self.nodeName = nodeName
-        self.curPos   = initPos
-        self.curAxs   = initAxis
-        self.curDeg   = initDeg
-        self.degMin   = degMin
-        self.degMax   = degMax
-        self.child    = child
-    def action(self,degree):
-        if degree < self.degMin:
-            degree = self.degMin
-        elif degree > self.degMax:
-            degree = self.degMax
-        theta     = (degree-self.curDeg)/180*numpy.pi
-        rotateMat = numpy.array([[numpy.cos(theta)+(self.curAxs[0]**2)*(1-numpy.cos(theta)),
-                                    self.curAxs[0]*self.curAxs[1]*(1-numpy.cos(theta))-self.curAxs[2]*numpy.sin(theta),
-                                    self.curAxs[0]*self.curAxs[2]*(1-numpy.cos(theta))+self.curAxs[1]*numpy.sin(theta)],
-                                    [self.curAxs[0]*self.curAxs[1]*(1-numpy.cos(theta))+self.curAxs[2]*numpy.sin(theta),
-                                    numpy.cos(theta)+(self.curAxs[1]**2)*(1-numpy.cos(theta)),
-                                    self.curAxs[1]*self.curAxs[2]*(1-numpy.cos(theta))-self.curAxs[0]*numpy.sin(theta)],
-                                    [self.curAxs[0]*self.curAxs[2]*(1-numpy.cos(theta))-self.curAxs[1]*numpy.sin(theta),
-                                    self.curAxs[1]*self.curAxs[2]*(1-numpy.cos(theta))+self.curAxs[0]*numpy.sin(theta),
-                                    numpy.cos(theta)+(self.curAxs[2]**2)*(1-numpy.cos(theta))]])
-        for eachChild in self.child:
-            deOffsetPos      = [val1-val0 for val1,val0 in zip (eachChild.curPos,self.curPos)]
-            newDeOffsetPos   = numpy.matmul(rotateMat,deOffsetPos)
-            eachChild.curPos = [val1+val0 for val1,val0 in zip (newDeOffsetPos,self.curPos)]
-            eachChild.curAxs = numpy.matmul(rotateMat,eachChild.curAxs)
-        self.curDeg = degree
+
+from _servoPoint import servoPoint
+
 # --------------------------------------------------------------------------------------------------------------
 class servoCalculator():
     def __init__(self,actuators,targetList,maxStepSize,yoffset):
@@ -89,7 +59,7 @@ class servoCalculator():
         res = scipy.optimize.minimize(fun=responseFunc,
                                        x0=[act.curDeg for act in self.actuators][:-1], 
                                      args=(self.actuators,target), 
-                                   method='trust-constr',
+                                   method='COBYLA',
                               constraints={'type': 'ineq','fun': con, 'args': (self.actuators,)},
                                       tol=1e-8)
         # restore original state
@@ -97,13 +67,21 @@ class servoCalculator():
             act.action(orgnDeg[act.nodeName])
         return numpy.ndarray.tolist(res.x)
 
-point4 = servoPoint('point4',[ 0 , 40, 50],[1,1,1],0,-90,90)
-point3 = servoPoint('point3',[ 0 , 40, 60],[1,0,0],0,-90,90,child=[point4])
-point2 = servoPoint('point2',[ 0 ,-10, 60],[1,0,0],0,-90,90,child=[point3,point4])
-point1 = servoPoint('point1',[ 0 ,-10, 10],[1,0,0],0,-90,90,child=[point2,point3,point4])
-point0 = servoPoint('point0',[ 0 ,-10,  0],[0,0,1],0,-90,90,child=[point1,point2,point3,point4])
+# build-up geometry
+initNode = [['point4',[ 0 , 40, 50],[1,1,1],0,-90,90,[]],
+            ['point3',[ 0 , 40, 60],[1,0,0],0,-90,90,['point4']],
+            ['point2',[ 0 ,-10, 60],[1,0,0],0,-90,90,['point3','point4']],
+            ['point1',[ 0 ,-10, 10],[1,0,0],0,-90,90,['point2','point3','point4']],
+            ['point0',[ 0 ,-10,  0],[0,0,1],0,-90,90,['point1','point2','point3','point4']]]
+buildNode = {}
+inputNode = []
+for eachInitNode in initNode:
+    buildNode[eachInitNode[0]] = servoPoint(eachInitNode[0],eachInitNode[1],eachInitNode[2],eachInitNode[3],eachInitNode[4],eachInitNode[5],[buildNode[eachName] for eachName in eachInitNode[6]])
+    inputNode.append(buildNode[eachInitNode[0]])
+inputNode.reverse()
 
-targetList = [[  0,  0,  0],
+targetList = [[  0, 40, 40],
+              [  0,  0,  0],
               [-60,  0,  0],
               [-60, 60,  0],
               [-60, 60, 50],
@@ -114,12 +92,9 @@ targetList = [[  0,  0,  0],
               [ 60, 30, 60],
               [ 60,  0, 30],
               [ 30,  0, 30],
-              [  0,  0,  0]]
+              [  0, 40, 40]]
 
-myServo = servoCalculator((point0,point1,point2,point3,point4),targetList,1.0,10)
+myServo = servoCalculator(inputNode,targetList,1.0,10)
 
-for row in myServo.actStateList:
-    print(row)
-
-with open('/home/nuujoy/Desktop/workingDirectory/wateringArm/wateringArmCmdList.json','w') as outputFile:
-    outputFile.write(json.dumps(myServo.actStateList))
+with open('wateringArmCmdList.json','w') as outputFile:
+    outputFile.write(json.dumps([initNode,myServo.actStateList]))
