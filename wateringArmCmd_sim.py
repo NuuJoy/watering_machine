@@ -37,7 +37,7 @@ class vispyObj():
 
         frontview_subplot = self.grid.add_view(row=0, col=0, row_span=1, col_span=1)
         frontview_subplot.border_color = (0.25, 0.25, 0.25, 1)
-        frontview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-120,-20,240,140),interactive=False)
+        frontview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-120,-20,240,140),aspect=1,interactive=False, up='+z')
         frontTitle = vispy.scene.visuals.Text('Front view',color=[1,1,1])
         frontTitle.font_size = 12
         frontTitle.pos = [0,100]
@@ -46,7 +46,7 @@ class vispyObj():
 
         topview_subplot = self.grid.add_view(row=1, col=0, row_span=1, col_span=1)
         topview_subplot.border_color = (0.25, 0.25, 0.25, 1)
-        topview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-120,-30,240,150),interactive=False)
+        topview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-120,-30,240,150),aspect=1,interactive=False, up='-z')
         topTitle = vispy.scene.visuals.Text('Top view',color=[1,1,1])
         topTitle.font_size = 12
         topTitle.pos = [0,100]
@@ -55,7 +55,7 @@ class vispyObj():
 
         sideview_subplot = self.grid.add_view(row=2, col=0, row_span=1, col_span=1)
         sideview_subplot.border_color = (0.25, 0.25, 0.25, 1)
-        sideview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-50,-40,190,140),interactive=False)
+        sideview_subplot.camera = vispy.scene.PanZoomCamera(rect=(-50,-40,190,140),aspect=1,interactive=False, up='-z')
         sideTitle = vispy.scene.visuals.Text('Side view',color=[1,1,1])
         sideTitle.font_size = 12
         sideTitle.pos = [45,80]
@@ -65,24 +65,24 @@ class vispyObj():
         for eachBox in obstacle:
             x,y,z,w,d,h = eachBox
             
-            obstacleBox = vispy.scene.visuals.Box(width=w, height=h, depth=d,color=[0.25,0.25,0.25])
+            obstacleBox = vispy.scene.visuals.Box(width=w, height=h, depth=d,color=[0.25,0.25,0.25],edge_color=[1,1,1])
             obstacleBox.transform = vispy.visuals.transforms.MatrixTransform()
             obstacleBox.transform.translate([x,y,z+(h/2)])
             curstate_subplot.add(obstacleBox)
 
-            obstacleBox = vispy.scene.visuals.Box(width=w, height=d, depth=h,color=[0.25,0.25,0.25])
+            obstacleBox = vispy.scene.visuals.Box(width=w, height=d, depth=h,color=[0.25,0.25,0.25],edge_color=[1,1,1])
             obstacleBox.transform = vispy.visuals.transforms.MatrixTransform()
             obstacleBox.transform.translate([x,z+(h/2),y])
             frontview_subplot.add(obstacleBox)
 
-            obstacleBox = vispy.scene.visuals.Box(width=w, height=h, depth=d,color=[0.25,0.25,0.25])
+            obstacleBox = vispy.scene.visuals.Box(width=w, height=h, depth=d,color=[0.25,0.25,0.25],edge_color=[1,1,1])
             obstacleBox.transform = vispy.visuals.transforms.MatrixTransform()
             obstacleBox.transform.translate([x,y,z+(h/2)])
             topview_subplot.add(obstacleBox)
 
-            obstacleBox = vispy.scene.visuals.Box(width=d, height=w, depth=h,color=[0.25,0.25,0.25])
+            obstacleBox = vispy.scene.visuals.Box(width=d, height=w, depth=h,color=[0.25,0.25,0.25],edge_color=[1,1,1])
             obstacleBox.transform = vispy.visuals.transforms.MatrixTransform()
-            obstacleBox.transform.translate([y,z+(d/2),x])
+            obstacleBox.transform.translate([y,z+(h/2),x])
             sideview_subplot.add(obstacleBox)
 
         for eachPoint in self.actuators:
@@ -96,9 +96,9 @@ class vispyObj():
                 randClr = randomColor()
                 setattr(self,eachPoint.nodeName+'_pathData',[eachPoint.curPos])
                 setattr(self,eachPoint.nodeName+'_pathLine3D',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData')),color=randClr,antialias=True,method='gl'))
-                setattr(self,eachPoint.nodeName+'_pathLineFront',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,2]],color=randClr,antialias=True,method='gl'))
-                setattr(self,eachPoint.nodeName+'_pathLineTop',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,1]],color=randClr,antialias=True,method='gl'))
-                setattr(self,eachPoint.nodeName+'_pathLineSide',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[1,2]],color=randClr,antialias=True,method='gl'))
+                setattr(self,eachPoint.nodeName+'_pathLineFront',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,2,1]],color=randClr,antialias=True,method='gl'))
+                setattr(self,eachPoint.nodeName+'_pathLineTop',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,1,2]],color=randClr,antialias=True,method='gl'))
+                setattr(self,eachPoint.nodeName+'_pathLineSide',vispy.scene.visuals.Line(pos=numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[1,2,0]],color=randClr,antialias=True,method='gl'))
                 curstate_subplot.add(getattr(self,eachPoint.nodeName+'_pathLine3D'))
                 frontview_subplot.add(getattr(self,eachPoint.nodeName+'_pathLineFront'))
                 topview_subplot.add(getattr(self,eachPoint.nodeName+'_pathLineTop'))
@@ -109,9 +109,9 @@ class vispyObj():
                     # build line
                     randClr = randomColor()
                     setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_3D',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos]),color=randClr,antialias=True,method='gl'))
-                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Front',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,2]],color=randClr,antialias=True,method='gl'))
-                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Top',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,1]],color=randClr,antialias=True,method='gl'))
-                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Side',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[1,2]],color=randClr,antialias=True,method='gl'))
+                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Front',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,2,1]],color=randClr,antialias=True,method='gl'))
+                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Top',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,1,2]],color=randClr,antialias=True,method='gl'))
+                    setattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Side',vispy.scene.visuals.Line(pos=numpy.array([eachPoint.curPos,eachChild.curPos])[:,[1,2,0]],color=randClr,antialias=True,method='gl'))
                     curstate_subplot.add(getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_3D'))
                     frontview_subplot.add(getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Front'))
                     topview_subplot.add(getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Top'))
@@ -128,15 +128,15 @@ class vispyObj():
             if eachPoint.nodeName in self.trackingPoint:
                 getattr(self,eachPoint.nodeName+'_pathData').append(eachPoint.curPos)
                 getattr(self,eachPoint.nodeName+'_pathLine3D').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData')))
-                getattr(self,eachPoint.nodeName+'_pathLineFront').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,2]])
-                getattr(self,eachPoint.nodeName+'_pathLineTop').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,1]])
-                getattr(self,eachPoint.nodeName+'_pathLineSide').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[1,2]])
+                getattr(self,eachPoint.nodeName+'_pathLineFront').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,2,1]])
+                getattr(self,eachPoint.nodeName+'_pathLineTop').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[0,1,2]])
+                getattr(self,eachPoint.nodeName+'_pathLineSide').set_data(numpy.array(getattr(self,eachPoint.nodeName+'_pathData'))[:,[1,2,0]])
             for eachChild in eachPoint.child:
                 if eachPoint.nodeName+'_'+eachChild.nodeName in self.highlightLink:
                     getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_3D').set_data(numpy.array([eachPoint.curPos,eachChild.curPos]))
-                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Front').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,2]])
-                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Top').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,1]])
-                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Side').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[1,2]])
+                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Front').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,2,1]])
+                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Top').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[0,1,2]])
+                    getattr(self,eachPoint.nodeName+'_'+eachChild.nodeName+'_Side').set_data(numpy.array([eachPoint.curPos,eachChild.curPos])[:,[1,2,0]])
         # roll actuators state element
         self.actStateList = numpy.roll(self.actStateList,-1,axis=0)
 # --------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,17 @@ for eachInitNode in initNode:
     inputNode.append(buildNode[eachInitNode[0]])
 inputNode.reverse()
 
-obstacle = [[-20,0,0,40,10,10],[-50,0,0,20,30,40],[0,0,0,10,10,10],[50,25,0,10,50,20]]
+obstacleInput = [[10,10,50,10,10,10,10,10,10,10,10,10,40],
+                 [10,10,10,10,10,10,50,10,10,10,10,10,30],
+                 [10,10,10,10,10,10,10,10,10,10,30,10,20],
+                 [10,10,10,50,10,10,10,10,10,10,20,10,10],
+                 [10,10,10,20,10,10,10,10,50,10,10,10,10],
+                 [10,10,30,10,10,10,10,10,10,10,10,10,10]]
+
+obstacle = []
+for j,y in enumerate([50,40,30,20,10,0]):
+    for i,x in enumerate([-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60]):
+        obstacle.append([x,y,0,10,10,obstacleInput[j][i]])
 
 myGraph = vispyObj(inputNode,actStateList,['point0_point1','point1_point2','point2_point3','point3_point4'],['point2','point3','point4'],obstacle)
 
