@@ -65,20 +65,34 @@ if __name__ == '__main__':
 
     try:
         with hardwareControl(pwmena_pin,valve_pin,nodeNameList) as hwctrl:
-            # format: [[[datetime1],[task1,task2,...]],[[datetime2],[task1,task2,...]],...]
-            managerList = [[[None,None,None,8, 30,0,0],['wakeup.json','morningwatering.json','sleep.json']],
-                           [[None,None,None,13,00,0,0],['wakeup.json','afternoonwatering.json','sleep.json']],
-                           [[None,None,None,16,45,0,0],['wakeup.json','eveningwatering.json','sleep.json']]]
+            while True:
+                # at the start of the day
+                # get manager list
+                managerList = [[[None,None,None,None, 8,30],['wakeup.json','morningwatering.json','sleep.json']],
+                            [[None,None,None,None,13, 0],['wakeup.json','afternoonwatering.json','sleep.json']],
+                            [[None,None,None,None,16,45],['wakeup.json','eveningwatering.json','sleep.json']]]
+                # get current day to filter today-task
+                curYear    = datetime.datetime.today().year
+                curMonth   = datetime.datetime.today().month
+                curDay     = datetime.datetime.today().day
+                curWeekday = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][datetime.datetime.today().weekday()]
+                
+                # format: [[[datetime1],[task1,task2,...]],[[datetime2],[task1,task2,...]],...]
+                #     datetime: [year,month,day,weekday,hour,min]
+                #         task: [file1,file2,...]
+                # datetime.datetime.today().weekday()
+                # datetime.datetime
+                # datetime.datetime.utcnow()
+                # datetime.datetime.utcnow().timestamp()
+                # datetime.datetime(2020, 5, 3, 6, 57, 21, 398648)
+                # datetime.datetime(2020, 5, 3, 6, 57, 21, 398648).timestamp()
+            
+                while not rospy.is_shutdown():
+                    pass
+                    rate.sleep()
 
-            # datetime.datetime
-            # datetime.datetime.utcnow()
-            # datetime.datetime.utcnow().timestamp()
-            # datetime.datetime(2020, 5, 3, 6, 57, 21, 398648)
-            # datetime.datetime(2020, 5, 3, 6, 57, 21, 398648).timestamp()
-        
-            while not rospy.is_shutdown():
-                pass
-                rate.sleep()
-
+                    if datetime.datetime.today().day != curDay:
+                        break # break from loop to get new today-task
+                    
     except rospy.ROSInterruptException:
         pass
