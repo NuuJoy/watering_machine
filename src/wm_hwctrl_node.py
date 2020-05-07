@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import sys
-import time
-import datetime
+import json
 import rospy
 import std_msgs.msg
 import RPi.GPIO
