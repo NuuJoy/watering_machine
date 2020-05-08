@@ -33,7 +33,7 @@ class vispyObj():
         curstate_subplot.camera.interactive = False
         curstate_subplot.bgcolor = 'black'
         curstate_subplot.camera  = 'turntable'
-        curstate_subplot.camera.center   = [0,100,0]
+        curstate_subplot.camera.center   = [120,80,0]
         curstate_subplot.camera.distance = 500.0
 
         frontview_subplot = self.grid.add_view(row=0, col=0, row_span=1, col_span=1)
@@ -163,21 +163,10 @@ for eachInitNode in initNode:
     inputNode.append(buildNode[eachInitNode[0]])
 inputNode.reverse()
 
-obstacleInput = [[10,10,50,10,10,10,10,10,10,10,10,10,40],
-                 [10,10,10,10,10,10,50,10,10,10,10,10,30],
-                 [10,10,10,10,10,10,10,10,10,10,30,10,20],
-                 [10,10,10,50,10,10,10,10,10,10,20,10,10],
-                 [10,10,10,20,10,10,10,10,50,10,10,10,10],
-                 [10,10,30,10,10,10,10,10,10,10,10,10,10]]
-obstacle = []
-for j,y in enumerate([50,40,30,20,10,0]):
-    for i,x in enumerate([-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60]):
-        obstacle.append([x,y,0,10,10,obstacleInput[j][i]])
-
-
-#############
-obstacle = []
-#############
+obstacle = [[120,80,0,240,160,5],
+            [80,80,5,140,140,10],[80,80,5,140,140,10],[80,15,15,140,10,35],[80,145,15,140,10,35],[15,80,15,10,120,35],[145,80,15,10,120,35],
+            [185,105,50,90,90,10],[185,65,60,90,10,30],[185,145,60,90,10,30],[145,105,60,10,70,30],[225,105,60,10,70,30],
+            [225,65,5,10,10,45],[225,145,5,10,10,45]]
 
 myGraph = vispyObj(actuators=inputNode,
                    actStateList=actStateList,
