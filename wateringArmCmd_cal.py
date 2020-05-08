@@ -57,11 +57,11 @@ class servoCalculator():
         return numpy.ndarray.tolist(res.x)
 
 # build-up geometry
-initNode = [['point4',[ 20,-20,  0],[1,1,1],  0,-90,90,[]],
-            ['point3',[-30,-20,  0],[0,1,0],-90,-90,90,['point4']],
-            ['point2',[150,-20,  0],[0,1,0],-90,-90,90,['point3','point4']],
-            ['point1',[-50,-20,  0],[0,1,0], 90,-90,90,['point2','point3','point4']],
-            ['point0',[-50,-20,-20],[0,0,1], 90,-90,90,['point1','point2','point3','point4']]]
+initNode = [['point4',[180,-10, 10],[1,1,1],  0,-90,90,[]],
+            ['point3',[120,-10, 10],[0,1,0], 90,-90,90,['point4']],
+            ['point2',[ 10,-10, 10],[0,1,0],-90,-90,90,['point3','point4']],
+            ['point1',[230,-10, 60],[0,1,0],-90,-90,90,['point2','point3','point4']],
+            ['point0',[230,-10, 10],[0,0,1], 90,-90,90,['point1','point2','point3','point4']]]
 buildNode = {}
 inputNode = []
 for eachInitNode in initNode:
@@ -69,38 +69,36 @@ for eachInitNode in initNode:
     inputNode.append(buildNode[eachInitNode[0]])
 inputNode.reverse()
 
-sleep2wake = [[[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ -30, -20,   0],[  20, -20,   0]], # sleep,
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[   0, -20, 100],[   0, -20,  50]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ -50,   0,  50],[ -50,   0,  00]]] # ready
+sleep2wake = [[[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 120, -10,  10],[ 180, -10,  10]], # sleep,
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 180, -10, 170],[ 180, -10, 110]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230,  40, 170],[ 230,  40, 110]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]]] # ready
 
-""" 
-worktarget = [[[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ -50,   0,  50],[ -50,   0,   0]]]
-for z in range(-60,221,20):
-    for y in range(-20,221,20):
-        for x in range(-220,221,20):
-            worktarget.append([[-50,-20,-20],[-50,-20,0],[None,None,None],[x,y,z+50],[x,y,z]])
-"""
-
-worktarget = [[[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ -50,   0,  50],[ -50,   0,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ 200,   0,  50],[ 200,   0,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ 200, 100,  50],[ 200, 100,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[-200, 100,  50],[-200, 100,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[-200, 200,  50],[-200, 200,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ 200, 200,  50],[ 200, 200,   0]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[ 200, 200, 200],[ 200, 200, 150]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[-200, 100, 200],[-200, 100, 150]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[   0,   0, 100],[   0,   0,  50]],
-              [[ -50, -20, -20],[ -50, -20,   0],[None,None,None],[   0,   0,  50],[   0,   0,   0]]]
+worktarget = [[[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]],
+              [[ 230, -10,  10],[ 230, -10,  60],[None,None,None],[ 230, 150, 280],[ 230, 150, 220]]]
 
 wake2sleep = list(sleep2wake)
 wake2sleep.reverse()
+
+###############
+worktarget = []
+###############
 
 targetList = sleep2wake + worktarget + wake2sleep
 
 # ------------------------------------------------------------------------------------------
 
 def refineTargetStep(targetList):
-    maxStepSize = 10.0
+    maxStepSize = 100.0
     newTargetList = []
     for target0,target1 in zip(targetList[:-1],targetList[1:]):
         norm = numpy.linalg.norm([pos1-pos0 for pos0,pos1 in zip(target0[-1],target1[-1])])
@@ -119,7 +117,11 @@ sleep2wake_act = servoCalculator(inputNode,refineTargetStep(sleep2wake),5).actSt
 wake2sleep_act = list(sleep2wake_act)
 wake2sleep_act.reverse()
 
-worktarget_act = servoCalculator(inputNode,refineTargetStep(worktarget),5).actStateList
+# worktarget_act = servoCalculator(inputNode,refineTargetStep(worktarget),5).actStateList
+
+###############
+worktarget_act = []
+###############
 
 actList = sleep2wake_act + worktarget_act + wake2sleep_act
 
