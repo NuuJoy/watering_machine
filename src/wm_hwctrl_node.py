@@ -83,6 +83,8 @@ if __name__ == '__main__':
         for (nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg) in pwmsetup:
             actuatorsDict[nodeName] = pwmDriver(nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg)
             rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/'+nodeName+'/setdeg', std_msgs.msg.Float64, actuatorsDict[nodeName].setPWM, queue_size=100)
+        closure = pwmDriver(nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg)
+        rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/closure/setdeg', std_msgs.msg.Float64, closure.setPWM, queue_size=100)
 
         # init gpio setting for each pin
         # setupFile - gpiosetup
@@ -92,7 +94,7 @@ if __name__ == '__main__':
         rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/state', std_msgs.msg.Bool, switchDict.pwm_active_set, queue_size=100)
         rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/valvectrl/state', std_msgs.msg.Bool, switchDict.valve_active_set, queue_size=100)
         rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pumpctrl/state', std_msgs.msg.Bool, switchDict.pump_active_set, queue_size=100)
-        
+
         rospy.spin()
 
     except rospy.ROSInterruptException:
