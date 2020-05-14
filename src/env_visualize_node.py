@@ -10,7 +10,7 @@ import vispy
 history_hr = 48.0
 
 class envDataStore():
-    def __init__(self,history_hr):
+    def __init__(self,history_hr,pub_print):
         self.temp1 = []
         self.temp2 = []
         self.humd1 = []
@@ -19,6 +19,7 @@ class envDataStore():
         self.inlx2 = []
         self.history_hr  = history_hr
         self.history_sec = 3600.0*history_hr
+        self.pub_print   = pub_print
         # init vispy for data-visualize
         canvas = vispy.scene.SceneCanvas(keys='interactive')
         canvas.size = 1200, 600
@@ -58,43 +59,53 @@ class envDataStore():
         plot_temp1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp1]
         plot_temp1.remove(None)
         self.temperature1_line.set_data(pos=plot_temp1)
+        self.pub_print('temp1,{},{}'.format(curTime,data.data))
     def temp2_update(self,data):
         self.temp2.append([time.time(),data.data])
         curTime = time.time()
         plot_temp2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp2]
         plot_temp2.remove(None)
         self.temperature2_line.set_data(pos=plot_temp2)
+        self.pub_print('temp2,{},{}'.format(curTime,data.data))
     def humd1_update(self,data):
         self.humd1.append([time.time(),data.data])
         curTime = time.time()
         plot_humd1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd1]
         plot_humd1.remove(None)
         self.humidity1_line.set_data(pos=plot_humd1)
+        self.pub_print('humd1,{},{}'.format(curTime,data.data))
     def humd2_update(self,data):
         self.humd2.append([time.time(),data.data])
         curTime = time.time()
         plot_humd2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd2]
         plot_humd2.remove(None)
         self.humidity2_line.set_data(pos=plot_humd2)
+        self.pub_print('humd2,{},{}'.format(curTime,data.data))
     def inlx1_update(self,data):
         self.inlx1.append([time.time(),data.data])
         curTime = time.time()
         plot_inlx1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx1]
         plot_inlx1.remove(None)
         self.ambientlight1_line.set_data(pos=plot_inlx1)
+        self.pub_print('inlx1,{},{}'.format(curTime,data.data))
     def inlx2_update(self,data):
         self.inlx2.append([time.time(),data.data])
         curTime = time.time()
         plot_inlx2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx2]
         plot_inlx2.remove(None)
         self.ambientlight2_line.set_data(pos=plot_inlx2)
+        self.pub_print('inlx2,{},{}'.format(curTime,data.data))
+    def write2file(self,data):
+        with open('logfile.csv','a') as logfile:
+            logfile.write(data.data+'\n')
 
 if __name__ == '__main__' and sys.flags.interactive == 0:
     try:
         # init ros node
         rospy.init_node('wm_env_monitor_node', anonymous=True)
         # init data storage
-        env = envDataStore(history_hr)
+        pub_print = rospy.Publisher('env_monitor_node/print2file', std_msgs.msg.String, queue_size=100)
+        env = envDataStore(history_hr,pub_print)
         # init subscriber
         rospy.Subscriber('env_monitor_node/temp1', std_msgs.msg.Float64, env.temp1_update, queue_size=1)
         rospy.Subscriber('env_monitor_node/temp2', std_msgs.msg.Float64, env.temp2_update, queue_size=1)
@@ -102,6 +113,8 @@ if __name__ == '__main__' and sys.flags.interactive == 0:
         rospy.Subscriber('env_monitor_node/humd2', std_msgs.msg.Float64, env.humd2_update, queue_size=1)
         rospy.Subscriber('env_monitor_node/inlx1', std_msgs.msg.Float64, env.inlx1_update, queue_size=1)
         rospy.Subscriber('env_monitor_node/inlx2', std_msgs.msg.Float64, env.inlx2_update, queue_size=1)
+
+        rospy.Subscriber('env_monitor_node/print2file', std_msgs.msg.String, env.write2file, queue_size=100)
 
         while not rospy.is_shutdown():
             vispy.app.run()
