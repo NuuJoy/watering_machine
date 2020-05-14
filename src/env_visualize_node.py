@@ -5,7 +5,10 @@ import time
 import numpy
 import rospy
 import std_msgs.msg
+
 import vispy
+import vispy.scene
+import vispy.app
 
 history_hr = 48.0
 
