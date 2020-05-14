@@ -59,42 +59,42 @@ class envDataStore():
         plot_temp1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp1]
         plot_temp1.remove(None)
         self.temperature1_line.set_data(pos=plot_temp1)
-        self.pub_print('temp1,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('temp1,{},{}'.format(curTime,data.data))
     def temp2_update(self,data):
         self.temp2.append([time.time(),data.data])
         curTime = time.time()
         plot_temp2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp2]
         plot_temp2.remove(None)
         self.temperature2_line.set_data(pos=plot_temp2)
-        self.pub_print('temp2,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('temp2,{},{}'.format(curTime,data.data))
     def humd1_update(self,data):
         self.humd1.append([time.time(),data.data])
         curTime = time.time()
         plot_humd1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd1]
         plot_humd1.remove(None)
         self.humidity1_line.set_data(pos=plot_humd1)
-        self.pub_print('humd1,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('humd1,{},{}'.format(curTime,data.data))
     def humd2_update(self,data):
         self.humd2.append([time.time(),data.data])
         curTime = time.time()
         plot_humd2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd2]
         plot_humd2.remove(None)
         self.humidity2_line.set_data(pos=plot_humd2)
-        self.pub_print('humd2,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('humd2,{},{}'.format(curTime,data.data))
     def inlx1_update(self,data):
         self.inlx1.append([time.time(),data.data])
         curTime = time.time()
         plot_inlx1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx1]
         plot_inlx1.remove(None)
         self.ambientlight1_line.set_data(pos=plot_inlx1)
-        self.pub_print('inlx1,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('inlx1,{},{}'.format(curTime,data.data))
     def inlx2_update(self,data):
         self.inlx2.append([time.time(),data.data])
         curTime = time.time()
         plot_inlx2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx2]
         plot_inlx2.remove(None)
         self.ambientlight2_line.set_data(pos=plot_inlx2)
-        self.pub_print('inlx2,{},{}'.format(curTime,data.data))
+        self.pub_print.publish('inlx2,{},{}'.format(curTime,data.data))
     def write2file(self,data):
         with open('logfile.csv','a') as logfile:
             logfile.write(data.data+'\n')
