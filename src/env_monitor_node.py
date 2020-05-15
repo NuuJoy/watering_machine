@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+print('env_monitor_node.py started')
+
 import sys
 import json
 import time
@@ -7,6 +9,8 @@ import rospy
 import std_msgs.msg
 import Adafruit_DHT
 import smbus
+
+print('all module inported')
 
 class sensor_DHT11():
     def __init__(self,gpio_pin):
@@ -30,14 +34,16 @@ class sensor_BH1750():
         return self.intensity
 
 if __name__ == '__main__':
+    print('entered main program')
     try:
+        print('node initializing')
         # init ros node
         rospy.init_node('env_monitor_node', anonymous=True)
         # init each sensor handle
         dht11_1  = sensor_DHT11(20)
         dht11_2  = sensor_DHT11(21)
-        bh1750_1 = sensor_BH1750(0,False)
-        bh1750_2 = sensor_BH1750(0,True)
+        bh1750_1 = sensor_BH1750(2,False)
+        bh1750_2 = sensor_BH1750(2,True)
         # init publisher
         pub_temp1 = rospy.Publisher('env_monitor_node/temp1', std_msgs.msg.Float64, queue_size=1)
         pub_temp2 = rospy.Publisher('env_monitor_node/temp2', std_msgs.msg.Float64, queue_size=1)
@@ -46,6 +52,7 @@ if __name__ == '__main__':
         pub_inlx1 = rospy.Publisher('env_monitor_node/inlx1', std_msgs.msg.Float64, queue_size=1)
         pub_inlx2 = rospy.Publisher('env_monitor_node/inlx2', std_msgs.msg.Float64, queue_size=1)
         
+        print('entering while-loop')
         while not rospy.is_shutdown():
             try:
                 humd1,temp1 = dht11_1.update()
@@ -55,6 +62,7 @@ if __name__ == '__main__':
                     pub_temp1.publish(temp1)
             except:
                 pass
+            
             try:
                 humd2,temp2 = dht11_2.update()
                 if humd2:
@@ -63,12 +71,14 @@ if __name__ == '__main__':
                     pub_temp2.publish(temp2)
             except:
                 pass
+            
             try:
                 inlx1 = bh1750_1.update()
                 if inlx1:
                     pub_inlx1.publish(inlx1)
             except:
                 pass
+            
             try:
                 inlx2 = bh1750_2.update()
                 if inlx2:
@@ -76,7 +86,13 @@ if __name__ == '__main__':
             except:
                 pass
             
+            try:
+                print('temp1:{}, temp2:{}, humd1:{}, humd2:{}, inlx1:{}, inlx2:{}'.format(temp1,temp2,humd1,humd2,inlx1,inlx2))
+            except:
+                pass
+
             rospy.sleep(60)
 
     except rospy.ROSInterruptException:
         pass
+
