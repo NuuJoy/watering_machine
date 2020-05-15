@@ -5,7 +5,6 @@ import time
 import numpy
 import rospy
 import std_msgs.msg
-
 import vispy
 import vispy.scene
 import vispy.app
@@ -22,18 +21,19 @@ class envDataStore():
         self.inlx2 = []
 
         self.logfilename = logfilename
-        with open(self.logfilename,'r') as logfile:
-            line = logfile.readline()
-            while line:
-                getattr(self,line[0]).append(line[1],line[2])
-                line = logfile.readline()
 
+        with open(self.logfilename,'r') as logfile:
+            line = logfile.readline().replace('\n','').split(',')
+            while len(line) == 3:
+                getattr(self,line[0]).append([float(line[1]),float(line[2])])
+                line = logfile.readline().replace('\n','').split(',')
+        
         self.history_hr  = history_hr
         self.history_sec = 3600.0*history_hr
         self.pub_print   = pub_print
         # init vispy for data-visualize
         canvas = vispy.scene.SceneCanvas(keys='interactive')
-        canvas.size = 1200, 600
+        canvas.size = 600, 300
         canvas.show()
         grid = canvas.central_widget.add_grid()
         # temperature subplot
@@ -82,43 +82,67 @@ class envDataStore():
     def temp1_update(self,data):
         self.temp1.append([time.time(),data.data])
         curTime = time.time()
-        plot_temp1 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp1]
-        plot_temp1.remove(None)
+        plot_temp1 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.temp1]
+        try:
+            while True:
+                plot_temp1.remove(None)
+        except:
+            pass
         self.temperature1_line.set_data(pos=numpy.array(plot_temp1))
         self.pub_print.publish('temp1,{},{}'.format(curTime,data.data))
     def temp2_update(self,data):
         self.temp2.append([time.time(),data.data])
         curTime = time.time()
-        plot_temp2 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp2]
-        plot_temp2.remove(None)
+        plot_temp2 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.temp2]
+        try:
+            while True:
+                plot_temp2.remove(None)
+        except:
+            pass
         self.temperature2_line.set_data(pos=numpy.array(plot_temp2))
         self.pub_print.publish('temp2,{},{}'.format(curTime,data.data))
     def humd1_update(self,data):
         self.humd1.append([time.time(),data.data])
         curTime = time.time()
-        plot_humd1 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd1]
-        plot_humd1.remove(None)
+        plot_humd1 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.humd1]
+        try:
+            while True:
+                plot_humd1.remove(None)
+        except:
+            pass
         self.humidity1_line.set_data(pos=numpy.array(plot_humd1))
         self.pub_print.publish('humd1,{},{}'.format(curTime,data.data))
     def humd2_update(self,data):
         self.humd2.append([time.time(),data.data])
         curTime = time.time()
-        plot_humd2 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd2]
-        plot_humd2.remove(None)
+        plot_humd2 = [[(datapoint[0]-curTime)/3600.0,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.humd2]
+        try:
+            while True:
+                plot_humd2.remove(None)
+        except:
+            pass
         self.humidity2_line.set_data(pos=numpy.array(plot_humd2))
         self.pub_print.publish('humd2,{},{}'.format(curTime,data.data))
     def inlx1_update(self,data):
         self.inlx1.append([time.time(),data.data])
         curTime = time.time()
-        plot_inlx1 = [[(datapoint[0]-curTime)/3600.0,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx1]
-        plot_inlx1.remove(None)
+        plot_inlx1 = [[(datapoint[0]-curTime)/3600.0,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.inlx1]
+        try:
+            while True:
+                plot_inlx1.remove(None)
+        except:
+            pass
         self.ambientlight1_line.set_data(pos=numpy.array(plot_inlx1))
         self.pub_print.publish('inlx1,{},{}'.format(curTime,data.data))
     def inlx2_update(self,data):
         self.inlx2.append([time.time(),data.data])
         curTime = time.time()
-        plot_inlx2 = [[(datapoint[0]-curTime)/3600.0,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx2]
-        plot_inlx2.remove(None)
+        plot_inlx2 = [[(datapoint[0]-curTime)/3600.0,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in self.inlx2]
+        try:
+            while True:
+                plot_inlx2.remove(None)
+        except:
+            pass
         self.ambientlight2_line.set_data(pos=numpy.array(plot_inlx2))
         self.pub_print.publish('inlx2,{},{}'.format(curTime,data.data))
     def write2file(self,data):
@@ -126,13 +150,12 @@ class envDataStore():
             logfile.write(data.data+'\n')
 
 if __name__ == '__main__' and sys.flags.interactive == 0:
-
     try:
         # init ros node
         rospy.init_node('wm_env_monitor_node', anonymous=True)
         # init data storage
         pub_print = rospy.Publisher('env_monitor_node/print2file', std_msgs.msg.String, queue_size=100)
-        env = envDataStore('/home/pi/wmros_ws/logfile/logFile.csv',history_hr,pub_print)
+        env = envDataStore('/home/nuujoy/wmros_ws/logFile.csv',history_hr,pub_print)
         # init subscriber
         rospy.Subscriber('env_monitor_node/temp1', std_msgs.msg.Float64, env.temp1_update, queue_size=1)
         rospy.Subscriber('env_monitor_node/temp2', std_msgs.msg.Float64, env.temp2_update, queue_size=1)
