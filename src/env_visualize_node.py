@@ -31,8 +31,12 @@ class envDataStore():
         # temperature subplot
         self.temperature_subplot = grid.add_view(row=0, col=0, row_span=1, col_span=1)
         self.temperature_subplot.border_color = (0.5, 0.5, 0.5, 1)
-        self.temperature_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,20.0,self.history_hr,20.0),interactive=True)
-        vispy.scene.visuals.GridLines(parent=self.temperature_subplot.scene)
+        self.temperature_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,20.0,self.history_hr,20.0),interactive=False)
+        self.temperature_subplot.add(vispy.scene.visuals.GridLines())
+        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  Temperature',pos=[-self.history_hr,40],color='red',font_size=10,anchor_x='left',anchor_y='bottom'))
+        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  35',pos=[-self.history_hr,35],color='red',font_size=10,anchor_x='left',anchor_y='center'))
+        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  30',pos=[-self.history_hr,30],color='red',font_size=10,anchor_x='left',anchor_y='center'))
+        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  25',pos=[-self.history_hr,25],color='red',font_size=10,anchor_x='left',anchor_y='center'))
         self.temperature1_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[1,0,0], antialias=False, method='gl')
         self.temperature2_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[1,0,0], antialias=False, method='gl')
         self.temperature_subplot.add(self.temperature1_line)
@@ -40,8 +44,13 @@ class envDataStore():
         # humidity subplot
         self.humidity_subplot = grid.add_view(row=1, col=0, row_span=1, col_span=1)
         self.humidity_subplot.border_color = (0.5, 0.5, 0.5, 1)
-        self.humidity_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,0.0,self.history_hr,100.0),interactive=True)
-        vispy.scene.visuals.GridLines(parent=self.humidity_subplot.scene)
+        self.humidity_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,0.0,self.history_hr,100.0),interactive=False)
+        self.humidity_subplot.add(vispy.scene.visuals.GridLines())
+        self.humidity_subplot.add(vispy.scene.visuals.Text(text='  Humidity',pos=[-self.history_hr,100],color='green',font_size=10,anchor_x='left',anchor_y='bottom'))
+        self.humidity_subplot.add(vispy.scene.visuals.Text(text='  80',pos=[-self.history_hr,80],color='green',font_size=10,anchor_x='left',anchor_y='center'))
+        self.humidity_subplot.add(vispy.scene.visuals.Text(text='  60',pos=[-self.history_hr,60],color='green',font_size=10,anchor_x='left',anchor_y='center'))
+        self.humidity_subplot.add(vispy.scene.visuals.Text(text='  40',pos=[-self.history_hr,40],color='green',font_size=10,anchor_x='left',anchor_y='center'))
+        self.humidity_subplot.add(vispy.scene.visuals.Text(text='  20',pos=[-self.history_hr,20],color='green',font_size=10,anchor_x='left',anchor_y='center'))
         self.humidity1_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[0,1,0], antialias=False, method='gl')
         self.humidity2_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[0,1,0], antialias=False, method='gl')
         self.humidity_subplot.add(self.humidity1_line)
@@ -49,8 +58,14 @@ class envDataStore():
         # ambientlight subplot
         self.ambientlight_subplot = grid.add_view(row=2, col=0, row_span=1, col_span=1)
         self.ambientlight_subplot.border_color = (0.5, 0.5, 0.5, 1)
-        self.ambientlight_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,0.0,self.history_hr,5000.0),interactive=True)
-        vispy.scene.visuals.GridLines(parent=self.ambientlight_subplot.scene)
+        self.ambientlight_subplot.camera = vispy.scene.PanZoomCamera(rect=(-self.history_hr,-1,self.history_hr,6),interactive=False)
+        self.ambientlight_subplot.add(vispy.scene.visuals.GridLines())
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  AmbientLight',pos=[-self.history_hr,5],color='blue',font_size=10,anchor_x='left',anchor_y='bottom'))
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  10000',pos=[-self.history_hr,4],color='blue',font_size=10,anchor_x='left',anchor_y='center'))
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  1000',pos=[-self.history_hr,3],color='blue',font_size=10,anchor_x='left',anchor_y='center'))
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  100',pos=[-self.history_hr,2],color='blue',font_size=10,anchor_x='left',anchor_y='center'))
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  10',pos=[-self.history_hr,1],color='blue',font_size=10,anchor_x='left',anchor_y='center'))
+        self.ambientlight_subplot.add(vispy.scene.visuals.Text(text='  1',pos=[-self.history_hr,0],color='blue',font_size=10,anchor_x='left',anchor_y='center'))
         self.ambientlight1_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[0,0,1], antialias=False, method='gl')
         self.ambientlight2_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[0,0,1], antialias=False, method='gl')
         self.ambientlight_subplot.add(self.ambientlight1_line)
@@ -61,48 +76,49 @@ class envDataStore():
         curTime = time.time()
         plot_temp1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp1]
         plot_temp1.remove(None)
-        self.temperature1_line.set_data(pos=plot_temp1)
+        self.temperature1_line.set_data(pos=numpy.array(plot_temp1))
         self.pub_print.publish('temp1,{},{}'.format(curTime,data.data))
     def temp2_update(self,data):
         self.temp2.append([time.time(),data.data])
         curTime = time.time()
         plot_temp2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.temp2]
         plot_temp2.remove(None)
-        self.temperature2_line.set_data(pos=plot_temp2)
+        self.temperature2_line.set_data(pos=numpy.array(plot_temp2))
         self.pub_print.publish('temp2,{},{}'.format(curTime,data.data))
     def humd1_update(self,data):
         self.humd1.append([time.time(),data.data])
         curTime = time.time()
         plot_humd1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd1]
         plot_humd1.remove(None)
-        self.humidity1_line.set_data(pos=plot_humd1)
+        self.humidity1_line.set_data(pos=numpy.array(plot_humd1))
         self.pub_print.publish('humd1,{},{}'.format(curTime,data.data))
     def humd2_update(self,data):
         self.humd2.append([time.time(),data.data])
         curTime = time.time()
         plot_humd2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.humd2]
         plot_humd2.remove(None)
-        self.humidity2_line.set_data(pos=plot_humd2)
+        self.humidity2_line.set_data(pos=numpy.array(plot_humd2))
         self.pub_print.publish('humd2,{},{}'.format(curTime,data.data))
     def inlx1_update(self,data):
         self.inlx1.append([time.time(),data.data])
         curTime = time.time()
-        plot_inlx1 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx1]
+        plot_inlx1 = [[datapoint[0]-curTime,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx1]
         plot_inlx1.remove(None)
-        self.ambientlight1_line.set_data(pos=plot_inlx1)
+        self.ambientlight1_line.set_data(pos=numpy.array(plot_inlx1))
         self.pub_print.publish('inlx1,{},{}'.format(curTime,data.data))
     def inlx2_update(self,data):
         self.inlx2.append([time.time(),data.data])
         curTime = time.time()
-        plot_inlx2 = [[datapoint[0]-curTime,datapoint[1]] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx2]
+        plot_inlx2 = [[datapoint[0]-curTime,numpy.log10(datapoint[1])] if (datapoint[0]-curTime) > -self.history_sec else None for datapoint in env.inlx2]
         plot_inlx2.remove(None)
-        self.ambientlight2_line.set_data(pos=plot_inlx2)
+        self.ambientlight2_line.set_data(pos=numpy.array(plot_inlx2))
         self.pub_print.publish('inlx2,{},{}'.format(curTime,data.data))
     def write2file(self,data):
         with open('logfile.csv','a') as logfile:
             logfile.write(data.data+'\n')
 
 if __name__ == '__main__' and sys.flags.interactive == 0:
+    
     try:
         # init ros node
         rospy.init_node('wm_env_monitor_node', anonymous=True)
