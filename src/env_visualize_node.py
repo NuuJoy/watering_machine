@@ -21,12 +21,15 @@ class envDataStore():
         self.inlx2 = []
 
         self.logfilename = logfilename
-
-        with open(self.logfilename,'r') as logfile:
-            line = logfile.readline().replace('\n','').split(',')
-            while len(line) == 3:
-                getattr(self,line[0]).append([float(line[1]),float(line[2])])
+        
+        try:
+            with open(self.logfilename,'r') as logfile:
                 line = logfile.readline().replace('\n','').split(',')
+                while len(line) == 3:
+                    getattr(self,line[0]).append([float(line[1]),float(line[2])])
+                    line = logfile.readline().replace('\n','').split(',')
+        except:
+            pass
         
         self.history_hr  = history_hr
         self.history_sec = 3600.0*history_hr
