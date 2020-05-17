@@ -48,7 +48,7 @@ class vispygraph():
         self.temperature_subplot.add(vispy.scene.visuals.Text(text='  35',pos=[-self.history_hr,35],color='red',font_size=10,anchor_x='left',anchor_y='center'))
         self.temperature_subplot.add(vispy.scene.visuals.Text(text='  30',pos=[-self.history_hr,30],color='red',font_size=10,anchor_x='left',anchor_y='center'))
         self.temperature_subplot.add(vispy.scene.visuals.Text(text='  25',pos=[-self.history_hr,25],color='red',font_size=10,anchor_x='left',anchor_y='center'))
-        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  20',pos=[-self.history_hr,25],color='red',font_size=10,anchor_x='left',anchor_y='center'))
+        self.temperature_subplot.add(vispy.scene.visuals.Text(text='  20',pos=[-self.history_hr,20],color='red',font_size=10,anchor_x='left',anchor_y='center'))
         self.temperature1_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[1,0,0], antialias=False, method='gl')
         self.temperature2_line = vispy.scene.visuals.Line(pos=numpy.array([[0,0]]),color=[1,0,0], antialias=False, method='gl')
         self.temperature_subplot.add(self.temperature1_line)
