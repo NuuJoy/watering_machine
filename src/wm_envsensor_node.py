@@ -12,8 +12,6 @@ BH1750 measurement mode:
 """
 
 import sys
-import json
-import time
 import rospy
 import std_msgs.msg
 import Adafruit_DHT
@@ -26,7 +24,7 @@ class sensor_DHT11():
         self.update()
     def update(self):
         self.humidity,self.temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11,self.gpio_pin)
-
+        return self.humidity,self.temperature
 class sensor_BH1750():
     def __init__(self,mode=0,alt_addr=False):
         self.type = 'BH1750'
@@ -37,41 +35,40 @@ class sensor_BH1750():
     def update(self):
         rawdata = self.bus.read_i2c_block_data(self.address,self.mode)
         self.intensity = (rawdata[1]+(256*rawdata[0]))/1.2
+        return self.intensity
 
 if __name__ == '__main__':
     try:
-        setupFileName = sys.argv[1] if len(sys.argv) > 1 else 'wm_setupFile.json'
-        with open(setupFileName,'r') as setupFile:
-            generalsetup,_,_,envsetup,_ = json.loads(setupFile.read())
+        rospy.init_node('wm_ros_envsensor_node', anonymous=True)
 
-        rospy.init_node(generalsetup['machineName']+'_envsensor_node', anonymous=True)
-
-        sensorDict = {}
-        for (senName, senType, senParam) in envsetup:
-            if senType == 'DHT11':
-                sensorDict[senName] = sensor_DHT11(*senParam)
-            elif senType == 'BH1750':
-                sensorDict[senName] = sensor_BH1750(*senParam)
-
-        pub_temp = rospy.Publisher('/'+ generalsetup['machineName'] +'/envsensor/temperature', std_msgs.msg.Float64, queue_size=1)
-        pub_humd = rospy.Publisher('/'+ generalsetup['machineName'] +'/envsensor/humidity', std_msgs.msg.Float64, queue_size=1)
-        pub_inlx = rospy.Publisher('/'+ generalsetup['machineName'] +'/envsensor/ambientlight', std_msgs.msg.Float64, queue_size=1)
+        dht11_1  = sensor_DHT11(24)
+        dht11_2  = sensor_DHT11(25)
+        bh1750_1 = sensor_BH1750(1,False)
+        bh1750_2 = sensor_BH1750(1,True)
+        
+        pub_temp1 = rospy.Publisher('/wm_ros/envsensor/temp1', std_msgs.msg.Float64, queue_size=1)
+        pub_temp2 = rospy.Publisher('/wm_ros/envsensor/temp2', std_msgs.msg.Float64, queue_size=1)
+        pub_humd1 = rospy.Publisher('/wm_ros/envsensor/humd1', std_msgs.msg.Float64, queue_size=1)
+        pub_humd2 = rospy.Publisher('/wm_ros/envsensor/humd2', std_msgs.msg.Float64, queue_size=1)
+        pub_inlx1 = rospy.Publisher('/wm_ros/envsensor/inlx1', std_msgs.msg.Float64, queue_size=1)
+        pub_inlx2 = rospy.Publisher('/wm_ros/envsensor/inlx2', std_msgs.msg.Float64, queue_size=1)
         
         while not rospy.is_shutdown():
-            raw_temp = []
-            raw_humd = []
-            raw_inlx = []
-            for eachSensor in sensorDict:
-                eachSensor.update()
-                if eachSensor.type == 'DHT11':
-                    raw_humd.append(eachSensor.humidity)
-                    raw_temp.append(eachSensor.temperature)
-                elif eachSensor.type == 'BH1750':
-                    raw_inlx.append(eachSensor.intensity)
-            pub_inlx.publish(sum(raw_inlx)/len(raw_inlx))
-            pub_temp.publish(sum(raw_temp)/len(raw_temp))
-            pub_humd.publish(sum(raw_humd)/len(raw_humd))
-            
+            # update and publish dht11_1 sensor value
+            humd1,temp1 = dht11_1.update()
+            pub_temp1.publish(temp1)
+            pub_humd1.publish(humd1)
+            # update and publish bh1750_1 sensor value
+            inlx1 = bh1750_1.update()
+            pub_inlx1.publish(inlx1)
+            # update and publish dht11_2 sensor value
+            humd2,temp2 = dht11_2.update()
+            pub_temp2.publish(temp2)
+            pub_humd2.publish(humd2)
+            # update and publish bh1750_2 sensor value
+            inlx2 = bh1750_2.update()
+            pub_inlx2.publish(inlx2)
+
             rospy.sleep(60)
 
     except rospy.ROSInterruptException:
