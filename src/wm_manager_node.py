@@ -8,28 +8,45 @@ import std_msgs.msg
 
 class envDataStore():
     def __init__(self):
-        self.curTemperature  = None
-        self.curHumidity     = None
-        self.curAmbientLight = None
-    def temperature_update(self,msgs):
-        self.curTemperature = msgs.data
-    def humidity_update(self,msgs):
-        self.curHumidity    = msgs.data
-    def ambientlight_update(self,msgs):
-        self.curLightLux    = msgs.data
+        self.__temp = [None,None]
+        self.__humd = [None,None]
+        self.__inlx = [None,None]
+
+    def data_update(self,msgs,argv):
+        if isinstance(msgs.data, (float,int)):
+            getattr(self,argv[0])[argv[1]] = msgs.data
+        else:
+            print('{} sensor {} not functional'.format(argv[0],argv[1]+1))
+
+    @property
+    def temp(self):
+        if self.__temp.count(None) < len(self.__temp):
+            temp = list(filter(None,self.__temp))
+            return sum(temp)/len(temp)
+    @property
+    def humd(self):
+        if self.__humd.count(None) < len(self.__humd):
+            humd = list(filter(None,self.__humd))
+            return sum(humd)/len(humd)
+    @property
+    def inlx(self):
+        if self.__inlx.count(None) < len(self.__inlx):
+            inlx = list(filter(None,self.__inlx))
+            return sum(inlx)/len(inlx)
 
 if __name__ == '__main__':
     try:
-        setupFileName = sys.argv[1] if len(sys.argv) > 1 else 'wm_setupFile.json'
-        with open(setupFileName,'r') as setupFile:
-            generalsetup,_,_,_,managertask = json.loads(setupFile.read())
+        rospy.init_node('wm_ros_manager_node', anonymous=True)
 
         env = envDataStore()
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/envsensor/temperature', std_msgs.msg.Float64, env.temperature_update, queue_size=1)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/envsensor/humidity', std_msgs.msg.Float64, env.humidity_update, queue_size=1)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/envsensor/ambientlight', std_msgs.msg.Float64, env.ambientlight_update, queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/temp1', std_msgs.msg.Float64, env.data_update, callback_args=('temp',0), queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/humd1', std_msgs.msg.Float64, env.data_update, callback_args=('humd',0), queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/inlx1', std_msgs.msg.Float64, env.data_update, callback_args=('inlx',0), queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/temp2', std_msgs.msg.Float64, env.data_update, callback_args=('temp',1), queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/humd2', std_msgs.msg.Float64, env.data_update, callback_args=('humd',1), queue_size=1)
+        rospy.Subscriber('/wm_ros/envsensor/inlx2', std_msgs.msg.Float64, env.data_update, callback_args=('inlx',1), queue_size=1)
 
-        pub_cmd = rospy.Publisher('/'+ generalsetup['machineName'] +'/overseer/inputfile', std_msgs.msg.String, queue_size=100)
+        pub_cmd = rospy.Publisher('/wm_ros/overseer/inputfile', std_msgs.msg.String, queue_size=100)
         
         curDay    = None
         todayTask = None
@@ -53,14 +70,19 @@ if __name__ == '__main__':
                     break
             
             # check on-demand task
-            if env.curHumidity < 60.0:
-                pub_cmd.publish('DoSomethingWithHumidity.json')
+            if env.humd < 60.0:
+                pub_cmd.publish('DoSomethingWithTooLowHumidity.json')
                 rospy.sleep(150)
-            elif env.curTemperature > 35.0:
+            elif env.humd > 80.0:
+                pub_cmd.publish('DoSomethingWithTooHighHumidity.json')
+                rospy.sleep(150)
+            elif env.temp > 35.0:
                 pub_cmd.publish('DoSomethingWithTemperature.json')
                 rospy.sleep(10)
-            elif env.curAmbientLight < 3000.0:
-                pub_cmd.publish('DoSomethingWithAmbientLight.json')
+            elif env.inlx < 3000.0:
+                pub_cmd.publish('DoSomethingWithTooDarkAmbientLight.json')
+            elif env.inlx > 15000.0:
+                pub_cmd.publish('DoSomethingWithTooBrightAmbientLight.json')
 
             rospy.sleep(60)
 
