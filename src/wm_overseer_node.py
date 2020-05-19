@@ -7,55 +7,36 @@ import rospy
 import std_msgs.msg
 
 class overseer():
-    def __init__(self,hardwareDict,overseer_delay):
-        self.hardwareDict   = hardwareDict
-        self.overseer_delay = overseer_delay
+    def __init__(self,hardwareDict,loop_delay):
+        self.hardwareDict = hardwareDict
+        self.loop_delay   = loop_delay
 
     def executeFile(self,jobfilepath):
-        with open(jobfilepath,'r') as jobfile:
-            # joblist
-            #     command:
-            #         pwmSetDeg([<string:nodename>,<float:degree>])
-            #         pwmActive(<bool:on/off>)
-            #         valveActive(<bool:on/off>)
-            #         pumpActive(<bool:on/off>)
-            #         delay(<float:delat_sec>)
-            #     format:
-            #         [<string:command>,<list:argv>]
+        with open(jobfilepath.data,'r') as jobfile:
             joblist = json.loads(jobfile.read())
-
             for (cmd,argv) in joblist:
-                if cmd == 'pwmSetDeg':
-                    self.hardwareDict[argv[0]].publish(argv[1])
-                elif cmd == 'pwmActive':
-                    self.hardwareDict['pwmctrl_state'].publish(argv)
-                elif cmd == 'valveActive':
-                    self.hardwareDict['valvectrl_state'].publish(argv)
-                elif cmd == 'pumpActive':
-                    self.hardwareDict['pumpctrl_state'].publish(argv)
-                elif cmd == 'delay':
-                    time.sleep(argv)
-
-                time.sleep(self.overseer_delay)
+                if cmd in hardwareDict:
+                    hardwareDict[cmd].publish(argv)
+                time.sleep(self.loop_delay)
 
 if __name__ == '__main__':
     try:
-        setupFileName = sys.argv[1] if len(sys.argv) > 1 else 'wm_setupFile.json'
-        with open(setupFileName,'r') as setupFile:
-            generalsetup,_,pwmsetup,_,_ = json.loads(setupFile.read())
-
-        rospy.init_node(generalsetup['machineName']+'_overseer_node', anonymous=True)
+        rospy.init_node('wm_ros_overseer_node', anonymous=True)
         
         hardwareDict = {}
-        for (nodeName,_,_,_,_,_) in pwmsetup:
-            hardwareDict['pwmctrl_'+nodeName+'_setdeg'] = rospy.Publisher('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/'+nodeName+'/setdeg', std_msgs.msg.Float64, queue_size=100)
-        hardwareDict['pwmctrl_state']   = rospy.Publisher('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/state', std_msgs.msg.Bool, queue_size=100)
-        hardwareDict['valvectrl_state'] = rospy.Publisher('/'+ generalsetup['machineName'] +'/hwctrl/valvectrl/state', std_msgs.msg.Bool, queue_size=100)
-        hardwareDict['pumpctrl_state']  = rospy.Publisher('/'+ generalsetup['machineName'] +'/hwctrl/pumpctrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['pwmctrl_baseazim_setdeg'] = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/baseazim/setdeg', std_msgs.msg.Float64, queue_size=100)
+        hardwareDict['pwmctrl_basealti_setdeg'] = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/basealti/setdeg', std_msgs.msg.Float64, queue_size=100)
+        hardwareDict['pwmctrl_midnode_setdeg']  = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/midnode/setdeg' , std_msgs.msg.Float64, queue_size=100)
+        hardwareDict['pwmctrl_endnode_setdeg']  = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/endnode/setdeg' , std_msgs.msg.Float64, queue_size=100)
+        hardwareDict['pwmctrl_closure_setdeg']  = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/closure/setdeg', std_msgs.msg.Float64, queue_size=100)
 
-        overseer_worker = overseer(hardwareDict,generalsetup['overseer_delay'])
+        hardwareDict['pwmctrl_state']   = rospy.Publisher('/wmros/hwctrl/pwmctrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['valvectrl_state'] = rospy.Publisher('/wmros/hwctrl/valvectrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['pumpctrl_state']  = rospy.Publisher('/wmros/hwctrl/pumpctrl/state', std_msgs.msg.Bool, queue_size=100)
+
+        overseer_worker = overseer(hardwareDict,loop_delay=0.01)
         
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/overseer/inputfile', std_msgs.msg.String, overseer_worker.executeFile, queue_size=100)
+        rospy.Subscriber('/wm_ros/overseer/inputfile', std_msgs.msg.String, overseer_worker.executeFile, queue_size=100)
 
         rospy.spin()
 
