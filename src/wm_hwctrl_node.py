@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-import json
 import rospy
 import std_msgs.msg
 import RPi.GPIO
@@ -20,10 +19,10 @@ class pwmDriver():
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(50) # set frequency 50 Hz
 
-    def setPWM(self,setDeg):
+    def setPWM(self,rawSetDeg):
         # adjust if setDeg is exceed limit
-        setDeg = self.minDeg if setDeg < self.minDeg else setDeg
-        setDeg = self.maxDeg if setDeg < self.maxDeg else setDeg
+        setDeg = self.minDeg if rawSetDeg.data < self.minDeg else rawSetDeg.data
+        setDeg = self.maxDeg if rawSetDeg.data > self.maxDeg else rawSetDeg.data
         # calculate degree to int(4096)
         setPcnt  = (setDeg-self.minDeg)/(self.maxDeg-self.minDeg)
         setInput = int(setPcnt*(self.maxWdth-self.minWdth) + self.minWdth)
@@ -67,33 +66,27 @@ class gpioDriver():
             RPi.GPIO.output(self.pump_pin, RPi.GPIO.LOW)
 
 if __name__ == '__main__':
-
     try:
-        setupFileName = sys.argv[1] if len(sys.argv) > 1 else 'wm_setupFile.json'
-        with open(setupFileName,'r') as setupFile:
-            generalsetup,gpiosetup,pwmsetup,_,_ = json.loads(setupFile.read())
+        rospy.init_node('wm_ros_hwctrl_node', anonymous=True)
 
-        rospy.init_node(generalsetup['machineName']+'_hwctrl_node', anonymous=True)
-
-        # init pwm setting for each servo node
-        # setupFile - pwmsetup
-        #       format: [[nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg],...]
-        #      example: [['baseazim',0,205,410,-90.0,90.0],['basealti',0,205,410,-90.0,90.0],['midnode',0,205,410,-90.0,90.0],['endnode',0,205,410,-90.0,90.0]]
         actuatorsDict = {}
-        for (nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg) in pwmsetup:
-            actuatorsDict[nodeName] = pwmDriver(nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg)
-            rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/'+nodeName+'/setdeg', std_msgs.msg.Float64, actuatorsDict[nodeName].setPWM, queue_size=100)
-        closure = pwmDriver(nodeName,pinNum,minWdth,maxWdth,minDeg,maxDeg)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/closure/setdeg', std_msgs.msg.Float64, closure.setPWM, queue_size=100)
 
-        # init gpio setting for each pin
-        # setupFile - gpiosetup
-        #       format: [pwmena_pin,valve_pin,pump_pin]
-        #      example: [11,13,15]
-        switchDict = gpioDriver(*gpiosetup)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pwmctrl/state', std_msgs.msg.Bool, switchDict.pwm_active_set, queue_size=100)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/valvectrl/state', std_msgs.msg.Bool, switchDict.valve_active_set, queue_size=100)
-        rospy.Subscriber('/'+ generalsetup['machineName'] +'/hwctrl/pumpctrl/state', std_msgs.msg.Bool, switchDict.pump_active_set, queue_size=100)
+        baseazim = pwmDriver('baseazim', 0, 205, 410, -90, 90)
+        basealti = pwmDriver('basealti', 1, 205, 410, -90, 90)
+        midnode  = pwmDriver('midnode' , 2, 205, 410, -90, 90)
+        endnode  = pwmDriver('endnode' , 3, 205, 410, -90, 90)
+        closure  = pwmDriver('closure' ,15, 205, 410,   0, 90)
+
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/baseazim/setdeg', std_msgs.msg.Float64, baseazim.setPWM, queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/basealti/setdeg', std_msgs.msg.Float64, basealti.setPWM, queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/midnode/setdeg' , std_msgs.msg.Float64, midnode.setPWM , queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/endnode/setdeg' , std_msgs.msg.Float64, endnode.setPWM , queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/closure/setdeg' , std_msgs.msg.Float64, closure.setPWM , queue_size=100)
+
+        switchDict = gpioDriver(27,28,29)
+        rospy.Subscriber('/wm_ros/hwctrl/pwmctrl/state'  , std_msgs.msg.Bool, switchDict.pwm_active_set  , queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/valvectrl/state', std_msgs.msg.Bool, switchDict.valve_active_set, queue_size=100)
+        rospy.Subscriber('/wm_ros/hwctrl/pumpctrl/state' , std_msgs.msg.Bool, switchDict.pump_active_set , queue_size=100)
 
         rospy.spin()
 
