@@ -28,9 +28,9 @@ class vispygraph():
                 while line:
                     try:
                         data = json.loads(line)
-                        if (time.time()-data['rawTime']) > self.history_sec:
+                        if (time.time()-data['rawTime']) < self.history_sec:
                             for key,val in data.items():
-                                if hasattr(self,key):
+                                if hasattr(self,key) and (val!=None):
                                     getattr(self,key).append([data['rawTime'],val])
                     except:
                         pass
@@ -38,6 +38,8 @@ class vispygraph():
         except:
             pass
         
+        print('init -------- self.temp1')
+        print(self.temp1)
         # init vispy for data-visualize
         canvas = vispy.scene.SceneCanvas(keys='interactive')
         canvas.size = 600, 300
@@ -96,6 +98,13 @@ class vispygraph():
                 plot_temp1.remove(None)
         except:
             pass
+
+        rospy.sleep(1.0)
+        print('-------- self.temp1')
+        print(self.temp1)
+        print('-------- plot_temp1')
+        print(plot_temp1
+        )
         self.temperature1_line.set_data(pos=numpy.array(plot_temp1))
         print('{} | {} | {}'.format(time.strftime("%b %d %Y %H:%M:%S", time.localtime()),'temp1_update',data.data))
     def temp2_update(self,data):
