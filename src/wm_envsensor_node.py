@@ -55,24 +55,27 @@ if __name__ == '__main__':
         pub_inlx2 = rospy.Publisher('/wm_ros/envsensor/inlx2', std_msgs.msg.Float64, queue_size=1)
         
         while not rospy.is_shutdown():
-            # update and publish dht11_1 sensor value
-            humd1,temp1 = dht11_1.update()
-            pub_temp1.publish(temp1)
-            pub_humd1.publish(humd1)
-            # update and publish bh1750_1 sensor value
-            inlx1 = bh1750_1.update()
-            pub_inlx1.publish(inlx1)
-            # update and publish dht11_2 sensor value
-            humd2,temp2 = dht11_2.update()
-            pub_temp2.publish(temp2)
-            pub_humd2.publish(humd2)
-            # update and publish bh1750_2 sensor value
-            inlx2 = bh1750_2.update()
-            pub_inlx2.publish(inlx2)
+            try:
+                # update and publish dht11_1 sensor value
+                humd1,temp1 = dht11_1.update()
+                pub_temp1.publish(temp1)
+                pub_humd1.publish(humd1)
+                # update and publish bh1750_1 sensor value
+                inlx1 = bh1750_1.update()
+                pub_inlx1.publish(round(inlx1,1))
+                # update and publish dht11_2 sensor value
+                humd2,temp2 = dht11_2.update()
+                pub_temp2.publish(temp2)
+                pub_humd2.publish(humd2)
+                # update and publish bh1750_2 sensor value
+                inlx2 = bh1750_2.update()
+                pub_inlx2.publish(round(inlx2,1))
 
-            currentDateTime = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
-            print('{} | temp: {}, {} | humd1: {}, {} | inlx1: {}, {}'.format(currentDateTime,temp1,temp2,humd1,humd2,inlx1,inlx2))
-
+                currentDateTime = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
+                print('{} | temp: {}, {} | humd1: {}, {} | inlx1: {}, {}'.format(currentDateTime,temp1,temp2,humd1,humd2,inlx1,inlx2))
+            except:
+                pass
+            
             rospy.sleep(60)
 
     except rospy.ROSInterruptException:
