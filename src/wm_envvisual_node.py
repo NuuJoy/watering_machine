@@ -96,13 +96,6 @@ class vispygraph():
                 plot_temp1.remove(None)
         except:
             pass
-
-        rospy.sleep(1.0)
-        print('-------- self.temp1')
-        print(self.temp1)
-        print('-------- plot_temp1')
-        print(plot_temp1
-        )
         self.temperature1_line.set_data(pos=numpy.array(plot_temp1))
         print('{} | {} | {}'.format(time.strftime("%b %d %Y %H:%M:%S", time.localtime()),'temp1_update',data.data))
     def temp2_update(self,data):
