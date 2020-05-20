@@ -3,12 +3,12 @@
 """
 BH1750 measurement mode:
            |hex_input |measuring    |precision  |range                 |timeused  |
-    Mode 0 |      0x20|     one-time|    4.0 lux|   0.0 to 54612.50 lux|     16 ms|
+    Mode 0 |      0x23|     one-time|    4.0 lux|   0.0 to 54612.50 lux|     16 ms|
     Mode 1 |      0x21|     one-time|    1.0 lux|   0.0 to 54612.50 lux|    120 ms|
-    Mode 2 |      0x23|     one-time|    0.5 lux|   0.0 to 27306.25 lux|    120 ms|
+    Mode 2 |      0x20|     one-time|    0.5 lux|   0.0 to 27306.25 lux|    120 ms|
     Mode 3 |      0x13|   continuous|    4.0 lux|   0.0 to 54612.50 lux|     16 ms|
-    Mode 4 |      0x10|   continuous|    1.0 lux|   0.0 to 54612.50 lux|    120 ms|
-    Mode 5 |      0x11|   continuous|    0.5 lux|   0.0 to 27306.25 lux|    120 ms|
+    Mode 4 |      0x11|   continuous|    1.0 lux|   0.0 to 54612.50 lux|    120 ms|
+    Mode 5 |      0x10|   continuous|    0.5 lux|   0.0 to 27306.25 lux|    120 ms|
 """
 
 import sys
@@ -41,8 +41,8 @@ if __name__ == '__main__':
     try:
         rospy.init_node('wm_ros_envsensor_node', anonymous=True)
 
-        dht11_1  = sensor_DHT11(24)
-        dht11_2  = sensor_DHT11(25)
+        dht11_1  = sensor_DHT11(20)
+        dht11_2  = sensor_DHT11(21)
         bh1750_1 = sensor_BH1750(1,False)
         bh1750_2 = sensor_BH1750(1,True)
         
