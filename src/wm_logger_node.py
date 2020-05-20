@@ -16,7 +16,7 @@ class logfile_printer():
         self.inlx1 = None
         self.inlx2 = None
     def env_update(self,msgs,argv):
-        setattr(self,argv[0],msgs.data)
+        setattr(self,argv,round(msgs.data,1))
 
     @property
     def strTime(self):
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('wm_ros_logger_node', anonymous=True)
 
-        printer = logfile_printer('logFile.jsav')
+        printer = logfile_printer('/home/nuujoy/wmros_ws/logFile.jsav')
 
         rospy.Subscriber('/wm_ros/envsensor/temp1', std_msgs.msg.Float64, printer.env_update, callback_args=('temp1'), queue_size=1)
         rospy.Subscriber('/wm_ros/envsensor/humd1', std_msgs.msg.Float64, printer.env_update, callback_args=('humd1'), queue_size=1)
