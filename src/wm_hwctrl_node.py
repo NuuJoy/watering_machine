@@ -104,3 +104,4 @@ if __name__ == '__main__':
         for actuator in actuatorsDict:
             actuator.pwm.set_pwm(actuator.pinNum, 0, 0)
         RPi.GPIO.cleanup([switchDict._pwmenaPin,switchDict._valvePin,switchDict._pumpPin])
+ 
