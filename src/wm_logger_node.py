@@ -27,12 +27,12 @@ class logfile_printer():
         with open(self.outputfile,'a') as logfile:
             logfile.write(text)
     def overseer_cmd_print(self,msgs):
-        output = json.dumps({'rawTime':time.localtime(),'strTime':self.strTime,'overseer_cmd':msgs.data})+'\n'
+        output = json.dumps({'rawTime':time.time(),'strTime':self.strTime,'overseer_cmd':msgs.data})+'\n'
         self.output2File(output)
     def current_env_print(self):
-        output = json.dumps({'rawTime':time.localtime(),'strTime':self.strTime,'temp1':self.temp1,'temp2':self.temp2,
-                                                                               'humd1':self.humd1,'humd2':self.humd2,
-                                                                               'inlx1':self.inlx1,'inlx2':self.inlx2})+'\n'
+        output = json.dumps({'rawTime':time.time(),'strTime':self.strTime,'temp1':self.temp1,'temp2':self.temp2,
+                                                                          'humd1':self.humd1,'humd2':self.humd2,
+                                                                          'inlx1':self.inlx1,'inlx2':self.inlx2})+'\n'
         self.output2File(output)
 
 if __name__ == '__main__':
@@ -55,4 +55,3 @@ if __name__ == '__main__':
         
     except rospy.ROSInterruptException:
         pass
- 
