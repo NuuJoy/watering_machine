@@ -38,8 +38,6 @@ class vispygraph():
         except:
             pass
         
-        print('init -------- self.temp1')
-        print(self.temp1)
         # init vispy for data-visualize
         canvas = vispy.scene.SceneCanvas(keys='interactive')
         canvas.size = 600, 300
