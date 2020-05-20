@@ -30,9 +30,9 @@ if __name__ == '__main__':
         hardwareDict['pwmctrl_endnode_setdeg']  = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/endnode/setdeg' , std_msgs.msg.Float64, queue_size=100)
         hardwareDict['pwmctrl_closure_setdeg']  = rospy.Publisher('/wm_ros/hwctrl/pwmctrl/closure/setdeg', std_msgs.msg.Float64, queue_size=100)
 
-        hardwareDict['pwmctrl_state']   = rospy.Publisher('/wmros/hwctrl/pwmctrl/state', std_msgs.msg.Bool, queue_size=100)
-        hardwareDict['valvectrl_state'] = rospy.Publisher('/wmros/hwctrl/valvectrl/state', std_msgs.msg.Bool, queue_size=100)
-        hardwareDict['pumpctrl_state']  = rospy.Publisher('/wmros/hwctrl/pumpctrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['pwmctrl_state']   = rospy.Publisher('/wm_os/hwctrl/pwmctrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['valvectrl_state'] = rospy.Publisher('/wm_ros/hwctrl/valvectrl/state', std_msgs.msg.Bool, queue_size=100)
+        hardwareDict['pumpctrl_state']  = rospy.Publisher('/wm_ros/hwctrl/pumpctrl/state', std_msgs.msg.Bool, queue_size=100)
 
         overseer_worker = overseer(hardwareDict,loop_delay=0.01)
         
